@@ -143,6 +143,33 @@ def build_cfg_task1() -> nx.DiGraph:
     add_exit(G, ["n8"])
     return G
 
+
+def build_cfg_task2() -> nx.DiGraph:
+    """
+    check_access – 1 compound condition (A∧B)∨C → M=2.
+    With short-circuit expansion: 3 atomic checks → M=4 (decision-point method).
+    """
+    G = nx.DiGraph()
+    nodes = {
+        "n1": "role=='user'?",
+        "n2": "is_active?",
+        "n3": "is_admin?",
+        "n4": "return True",
+        "n5": "return False",
+    }
+    for nid, lbl in nodes.items():
+        G.add_node(nid, label=lbl)
+
+    # Short-circuit: if role!='user' skip is_active, go straight to is_admin
+    G.add_edge("n1", "n2", label="T")
+    G.add_edge("n1", "n3", label="F")
+    G.add_edge("n2", "n4", label="T")      # role='user' AND active → True
+    G.add_edge("n2", "n3", label="F")      # role='user' BUT NOT active → check admin
+    G.add_edge("n3", "n4", label="T")      # is_admin → True
+    G.add_edge("n3", "n5", label="F")      # none → False
+    add_exit(G, ["n4", "n5"])
+    return G
+
 # ══════════════════════════════════════════════════════════════════════════════
 # Analysis runner
 # ══════════════════════════════════════════════════════════════════════════════
@@ -162,6 +189,14 @@ CONFIGS = [
             "P4 [even j]:     n1→n2(T)→n3(F)→n5(T)→n6(T)→n7→n5(F)→n2(F)→n8→EXIT",
             "P5 [odd j]:      n1→n2(T)→n3(F)→n5(T)→n6(F)→n5(F)→n2(F)→n8→EXIT",
         ],
+    },
+    {
+        "name":      "Task 2 – check_access",
+        "builder":   build_cfg_task2,
+        "entry":     "n1",
+        "decisions": ["n1", "n2", "n3"],
+        "exits":     ["n4", "n5"],
+        "filename":  "cfg_images/cfg_task2.png",
     },
 ]
 
