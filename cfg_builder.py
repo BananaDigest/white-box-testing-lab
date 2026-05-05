@@ -363,6 +363,22 @@ CONFIGS = [
         "exits":     ["n2", "n4", "n7", "n8"],
         "filename":  "cfg_images/cfg_task4.png",
     },
+    {
+        "name":      "Task 5 – update_task_status",
+        "builder":   build_cfg_task5,
+        "entry":     "n1",
+        "decisions": ["n2", "n4", "n6", "n7"],
+        "exits":     ["n3", "n5", "n8", "n10"],
+        "filename":  "cfg_images/cfg_task5.png",
+    },
+    {
+        "name":      "Task 6 – authenticate_user",
+        "builder":   build_cfg_task6,
+        "entry":     "n0",
+        "decisions": ["n1a", "n1b", "n3", "n6", "n8"],
+        "exits":     ["n2", "n4", "n7", "n10", "n12"],
+        "filename":  "cfg_images/cfg_task6.png",
+    },
 ]
 
 
