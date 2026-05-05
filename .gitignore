@@ -1,0 +1,9 @@
+# Віртуальне оточення
+venv/
+
+# Системні файли macOS
+.DS_Store
+
+# Кеш Python
+__pycache__/
+*.pyc
