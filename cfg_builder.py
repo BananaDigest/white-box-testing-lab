@@ -1,11 +1,3 @@
-"""
-CFG Builder for Lab 9 – White-Box Testing Techniques
-Builds Control Flow Graphs for all 6 tasks, calculates cyclomatic complexity,
-lists execution paths, and generates PNG images via matplotlib.
-
-Formula: M = E - N + 2P  (P = number of connected components, usually 1)
-All return-nodes are connected to a single EXIT node so the formula holds.
-"""
 import os
 import networkx as nx
 import matplotlib
@@ -205,7 +197,36 @@ def build_cfg_task3() -> nx.DiGraph:
     add_exit(G, ["n7"])
     return G
 
+def build_cfg_task4() -> nx.DiGraph:
+    """
+    validate_input – 3 sequential guards, last with compound AND.
+    Decision points: n1, n3, n5 → M = E-N+2 = 10-8+2 = 4
+    """
+    G = nx.DiGraph()
+    nodes = {
+        "n1": "not user?",
+        "n2": "return 'Missing user'",
+        "n3": "len(pwd) < 8?",
+        "n4": "return 'Weak password'",
+        "n5": "any(digit)?",
+        "n6": "any(upper)?",
+        "n7": "return 'Valid'",
+        "n8": "return 'Invalid'",
+    }
+    for nid, lbl in nodes.items():
+        G.add_node(nid, label=lbl)
 
+    G.add_edge("n1", "n2", label="T")
+    G.add_edge("n1", "n3", label="F")
+    G.add_edge("n3", "n4", label="T")
+    G.add_edge("n3", "n5", label="F")
+    G.add_edge("n5", "n6", label="T (digit found)")
+    G.add_edge("n5", "n8", label="F (no digit)")
+    G.add_edge("n6", "n7", label="T (upper found)")
+    G.add_edge("n6", "n8", label="F (no upper)")
+    add_exit(G, ["n2", "n4", "n7", "n8"])
+    return G
+    
 # ══════════════════════════════════════════════════════════════════════════════
 # Analysis runner
 # ══════════════════════════════════════════════════════════════════════════════
@@ -248,6 +269,14 @@ CONFIGS = [
             "P4 [inner=1 iter]: n1→n2(T)→n3(T)→n4(T)→n5(T)→n6→n5(F)→n3(F)→n2(F)→n7→EXIT",
             "P5 [inner>1 iter]: extends P4 with additional n6→n5 back-edges",
         ],
+    },
+    {
+        "name":      "Task 4 – validate_input",
+        "builder":   build_cfg_task4,
+        "entry":     "n1",
+        "decisions": ["n1", "n3", "n5", "n6"],
+        "exits":     ["n2", "n4", "n7", "n8"],
+        "filename":  "cfg_images/cfg_task4.png",
     },
 ]
 
