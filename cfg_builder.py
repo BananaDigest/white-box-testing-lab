@@ -170,6 +170,42 @@ def build_cfg_task2() -> nx.DiGraph:
     add_exit(G, ["n4", "n5"])
     return G
 
+def build_cfg_task3() -> nx.DiGraph:
+    """
+    process_matrix – 3 nested loops + 1 condition.
+    Decision points: n2, n3, n4, n5 → M = E-N+2 = 12-9+2 = 5
+    """
+    G = nx.DiGraph()
+    nodes = {
+        "n1": "count = 0",
+        "n2": "i<len(matrix)?\n[outer]",
+        "n3": "j<len(matrix[i])?\n[middle]",
+        "n4": "matrix[i][j] > 0?",
+        "n5": "k<matrix[i][j]?\n[inner]",
+        "n6": "count += k % 3",
+        "n7": "return count",
+    }
+    for nid, lbl in nodes.items():
+        G.add_node(nid, label=lbl)
+
+    edges = [
+        ("n1", "n2", ""),
+        ("n2", "n3", "T"),
+        ("n2", "n7", "F"),
+        ("n3", "n4", "T"),
+        ("n3", "n2", "F"),          # middle loop exhausted → next outer iter
+        ("n4", "n5", "T"),
+        ("n4", "n3", "F"),          # condition false → next j
+        ("n5", "n6", "T"),
+        ("n5", "n3", "F"),          # inner loop done → next j
+        ("n6", "n5", ""),           # next k
+    ]
+    for u, v, lbl in edges:
+        G.add_edge(u, v, label=lbl)
+    add_exit(G, ["n7"])
+    return G
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # Analysis runner
 # ══════════════════════════════════════════════════════════════════════════════
@@ -197,6 +233,21 @@ CONFIGS = [
         "decisions": ["n1", "n2", "n3"],
         "exits":     ["n4", "n5"],
         "filename":  "cfg_images/cfg_task2.png",
+    },
+    {
+        "name":      "Task 3 – process_matrix",
+        "builder":   build_cfg_task3,
+        "entry":     "n1",
+        "decisions": ["n2", "n3", "n4", "n5"],
+        "exits":     ["n7"],
+        "filename":  "cfg_images/cfg_task3.png",
+        "basis_paths": [
+            "P1 [empty outer]:  n1→n2(F)→n7→EXIT",
+            "P2 [empty middle]: n1→n2(T)→n3(F)→n2(F)→n7→EXIT",
+            "P3 [cond false]:   n1→n2(T)→n3(T)→n4(F)→n3(F)→n2(F)→n7→EXIT",
+            "P4 [inner=1 iter]: n1→n2(T)→n3(T)→n4(T)→n5(T)→n6→n5(F)→n3(F)→n2(F)→n7→EXIT",
+            "P5 [inner>1 iter]: extends P4 with additional n6→n5 back-edges",
+        ],
     },
 ]
 

@@ -1,7 +1,3 @@
-"""
-Task 2: White-box tests for check_access()
-Covers: Full Condition Combination Coverage + MC/DC
-"""
 import itertools
 import pytest
 from task2 import check_access
