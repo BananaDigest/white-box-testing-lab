@@ -226,7 +226,45 @@ def build_cfg_task4() -> nx.DiGraph:
     G.add_edge("n6", "n8", label="F (no upper)")
     add_exit(G, ["n2", "n4", "n7", "n8"])
     return G
-    
+
+def build_cfg_task5() -> nx.DiGraph:
+    """
+    update_task_status – 3 if-guards, last with compound AND.
+    With compound expansion: 4 decision nodes → M = E-N+2 = 14-11+2 = 5
+    """
+    G = nx.DiGraph()
+    nodes = {
+        "n1": "valid_transitions\n= {...}",
+        "n2": "status==\nnew_status?",
+        "n3": "return 'No change'",
+        "n4": "new_status not in\nvalid_transitions?",
+        "n5": "return 'Invalid\ntransition'",
+        "n6": "role not in\n[admin,mgr]?",
+        "n7": "new_status\n=='closed'?",
+        "n8": "return 'Permission\ndenied'",
+        "n9": "task.status\n= new_status",
+        "n10": "return 'Updated'",
+    }
+    for nid, lbl in nodes.items():
+        G.add_node(nid, label=lbl)
+
+    edges = [
+        ("n1",  "n2",  ""),
+        ("n2",  "n3",  "T"),
+        ("n2",  "n4",  "F"),
+        ("n4",  "n5",  "T"),
+        ("n4",  "n6",  "F"),
+        ("n6",  "n7",  "T (not admin)"),
+        ("n6",  "n9",  "F (admin/mgr)"),
+        ("n7",  "n8",  "T (closing)"),
+        ("n7",  "n9",  "F (not closing)"),
+        ("n9",  "n10", ""),
+    ]
+    for u, v, lbl in edges:
+        G.add_edge(u, v, label=lbl)
+    add_exit(G, ["n3", "n5", "n8", "n10"])
+    return G
+
 # ══════════════════════════════════════════════════════════════════════════════
 # Analysis runner
 # ══════════════════════════════════════════════════════════════════════════════
