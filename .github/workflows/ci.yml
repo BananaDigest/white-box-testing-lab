@@ -1,0 +1,46 @@
+name: White Box Testing – Lab 9
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  white-box-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests with branch coverage
+        run: |
+          coverage run --branch -m pytest -v
+          coverage report -m
+          coverage xml
+
+      - name: Build CFG images
+        run: python cfg_builder.py
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+      - name: Upload CFG images
+        uses: actions/upload-artifact@v4
+        with:
+          name: cfg-images
+          path: cfg_images/
