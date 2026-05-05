@@ -265,6 +265,53 @@ def build_cfg_task5() -> nx.DiGraph:
     add_exit(G, ["n3", "n5", "n8", "n10"])
     return G
 
+def build_cfg_task6() -> nx.DiGraph:
+    """
+    authenticate_user – 4 guards, first with compound OR (expanded).
+    Decision nodes: n1a,n1b,n3,n6,n8 → M = E-N+2 = 19-15+2 = 6
+    """
+    G = nx.DiGraph()
+    nodes = {
+        "n0":  "ENTRY",
+        "n1a": "not username?",
+        "n1b": "not password?",
+        "n2":  "return 'Missing\ncredentials'",
+        "n3":  "username\nnot in db?",
+        "n4":  "return 'User\nnot found'",
+        "n5":  "attempts =\ndb[u].get(…,0)",
+        "n6":  "attempts >= 3?",
+        "n7":  "return 'Account\nlocked'",
+        "n8":  "db[u]['pwd']\n!= password?",
+        "n9":  "attempts += 1",
+        "n10": "return 'Invalid\npassword'",
+        "n11": "attempts = 0",
+        "n12": "return\n'Authenticated'",
+    }
+    for nid, lbl in nodes.items():
+        G.add_node(nid, label=lbl)
+
+    edges = [
+        ("n0",  "n1a", ""),
+        ("n1a", "n2",  "T"),
+        ("n1a", "n1b", "F"),
+        ("n1b", "n2",  "T"),
+        ("n1b", "n3",  "F"),
+        ("n3",  "n4",  "T"),
+        ("n3",  "n5",  "F"),
+        ("n5",  "n6",  ""),
+        ("n6",  "n7",  "T"),
+        ("n6",  "n8",  "F"),
+        ("n8",  "n9",  "T"),
+        ("n8",  "n11", "F"),
+        ("n9",  "n10", ""),
+        ("n11", "n12", ""),
+    ]
+    for u, v, lbl in edges:
+        G.add_edge(u, v, label=lbl)
+    add_exit(G, ["n2", "n4", "n7", "n10", "n12"])
+    return G
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # Analysis runner
 # ══════════════════════════════════════════════════════════════════════════════
