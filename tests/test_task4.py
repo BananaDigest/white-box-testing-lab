@@ -49,7 +49,7 @@ def test_full_condition_combinations(user, password, c1, c2, c3a, c3b, expected)
 
 
 MCDC_TESTS = [
-    ("",  "Abcdefg1", "Missing user" )
+    ("",  "Abcdefg1", "Missing user" ),
     ("a", "abc",      "Weak password"), 
     ("a", "abcdefgH", "Invalid"      ), 
     ("a", "abcdefg1", "Invalid"      ),  
